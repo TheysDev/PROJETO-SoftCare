@@ -1,0 +1,14 @@
+@SoftCare_HostAddress = http://localhost:5139
+
+GET http://localhost:5139/homeAdmin
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6InRlc3RlQGZpYXAuaW8iLCJyb2xlIjpbInVzZXIiLCJhZG1pbiJdLCJuYmYiOjE3NTgwNjM1MjAsImV4cCI6MTc1ODA3MDcyMCwiaWF0IjoxNzU4MDYzNTIwLCJpc3MiOiJTb2Z0Q2FyZSIsImF1ZCI6IlNvZnRDYXJlIn0.3fkEt3zglFCnQ1ip73ZCZDO-Eb9OIZInPGz2vHz8qSI
+###
+
+GET http://localhost:5139
+Accept: application/json
+###
+
+GET http://localhost:5139/homeUser
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6InRlc3RlQGZpYXAuaW8iLCJyb2xlIjoidXNlciIsIm5iZiI6MTc1ODA2MzYzNiwiZXhwIjoxNzU4MDcwODM2LCJpYXQiOjE3NTgwNjM2MzYsImlzcyI6IlNvZnRDYXJlIiwiYXVkIjoiU29mdENhcmUifQ.-JdduZrcJ3L7ebnfQN8yEwRFLQ91F-Y4x7QNAbtxV7s

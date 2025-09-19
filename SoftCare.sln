@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftCare", "SoftCare.csproj", "{FBBEE0D7-EA10-4600-B9D0-4FFC964E3407}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FBBEE0D7-EA10-4600-B9D0-4FFC964E3407}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBBEE0D7-EA10-4600-B9D0-4FFC964E3407}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBBEE0D7-EA10-4600-B9D0-4FFC964E3407}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBBEE0D7-EA10-4600-B9D0-4FFC964E3407}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
