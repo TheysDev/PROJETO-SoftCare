@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using MongoDB.Driver;
 using SoftCare.Dtos;
 using SoftCare.Models;
-using SoftCare.Repositorios;
+using SoftCare.Repository;
 
 namespace SoftCare.Services;
 
@@ -49,7 +49,7 @@ public class AuthService(TokenService tokenService, IAuthRepository authReposito
 
        var token = _tokenService.GeradorToken(user);
         
-       return new AuthResult(true, token, ["Login com sucesso!"]);
+       return new AuthResult(true, token, []);
     }
 
     private string GerarHashSenhaComSalt(string senha)

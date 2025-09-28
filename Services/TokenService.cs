@@ -6,19 +6,13 @@ using SoftCare.Models;
 
 namespace SoftCare.Services;
 
-public class TokenService
+public class TokenService(IConfiguration configuration)
 {
-    private readonly IConfiguration _configuration;
-    
-    public TokenService(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
     public string GeradorToken(User user)
     {
         var handler = new JwtSecurityTokenHandler();
 
-        var chave = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
+        var chave = Encoding.UTF8.GetBytes(configuration["Jwt:Key"]);
 
         var credencial = new SigningCredentials(new SymmetricSecurityKey(chave), SecurityAlgorithms.HmacSha256Signature);
 
@@ -27,8 +21,8 @@ public class TokenService
             Subject = GeradorDeClaims(user),
             SigningCredentials = credencial,
             Expires = DateTime.UtcNow.AddHours(2),
-            Issuer = _configuration["Jwt:Issuer"],
-            Audience = _configuration["Jwt:Audience"]
+            Issuer = configuration["Jwt:Issuer"],
+            Audience = configuration["Jwt:Audience"]
         };
 
         var token = handler.CreateToken(descricaoToken);
@@ -39,7 +33,8 @@ public class TokenService
     private static ClaimsIdentity GeradorDeClaims(User user)
     {
         var ci = new ClaimsIdentity();
-        ci.AddClaim(new Claim(ClaimTypes.Name, user.Email));
+        ci.AddClaim(new Claim(ClaimTypes.Email, user.Email));
+        ci.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id));
         
         return ci;
     }

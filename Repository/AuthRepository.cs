@@ -1,26 +1,17 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using SoftCare.Data;
-using SoftCare.Dtos;
-using SoftCare.Dtos.User;
 using SoftCare.Models;
 
-namespace SoftCare.Repositorios;
+namespace SoftCare.Repository;
 
-public class AuthRepository : IAuthRepository
+public class AuthRepository(IMongoDatabase database) : IAuthRepository
 {
-    private readonly IMongoCollection<User> _userCollection;
+    private readonly IMongoCollection<User> _userCollection = database.GetCollection<User>(COLLECTIONNAME);
 
     private const string COLLECTIONNAME = "users";
-    
-    public AuthRepository(IOptions<MongoDBConfig> mongoDbSettings) {
-        
-        var client = new MongoClient(mongoDbSettings.Value.ConnectionURI);
-        var database = client.GetDatabase(mongoDbSettings.Value.NomeDatabase);
-        _userCollection = database.GetCollection<User>(COLLECTIONNAME);
-    }
 
-    public async void  RegistrarAsync(User user)
+    public async void RegistrarAsync(User user)
     {
         await _userCollection.InsertOneAsync(user);
     }

@@ -7,9 +7,9 @@ public static class AuthRoutes
 {
     public static void MapAuthRoute(this WebApplication app)
     {
-        var auth = app.MapGroup("/auth");
+        var authRoutes = app.MapGroup("/auth");
         
-        auth.MapPost("/registrar", [AllowAnonymous] async (RegisterRequest request, IValidator<RegisterRequest> validator, IAuthService authService) =>
+        authRoutes.MapPost("/registrar", [AllowAnonymous] async (RegisterRequest request, IValidator<RegisterRequest> validator, IAuthService authService) =>
         {
             var validationResult = await validator.ValidateAsync(request);
 
@@ -23,7 +23,7 @@ public static class AuthRoutes
             return !result.Sucesso ? Results.BadRequest(result) : Results.Created("/auth/login", new { message = "Usuário registrado com sucesso!" });
         });
 
-        auth.MapPost("/login", [AllowAnonymous] async (LoginRequest request, IValidator<LoginRequest> validator, IAuthService authService) =>
+        authRoutes.MapPost("/login", [AllowAnonymous] async (LoginRequest request, IValidator<LoginRequest> validator, IAuthService authService) =>
         {
             var validationResult = await validator.ValidateAsync(request);
 

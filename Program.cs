@@ -1,10 +1,14 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
 using SoftCare.Data;
 using SoftCare.Dtos;
-using SoftCare.Repositorios;
+using SoftCare.Repository;
 using SoftCare.Routes.AuthRoutes;
+using SoftCare.Routes.CheckInRoutes;
+using SoftCare.Routes.QuestionRoutes;
 using SoftCare.Services;
 using SoftCare.Validations;
 
@@ -15,11 +19,28 @@ builder.Services.AddScoped<IValidator<LoginRequest>, LoginValidator>();
 
 builder.Services.Configure<MongoDBConfig>(builder.Configuration.GetSection("MongoDB"));
 
+builder.Services.AddSingleton<IMongoClient>(sp => 
+{
+    var settings = sp.GetRequiredService<IOptions<MongoDBConfig>>().Value;
+    return new MongoClient(settings.ConnectionURI);
+});
+
+builder.Services.AddSingleton<IMongoDatabase>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<MongoDBConfig>>().Value;
+    var client = sp.GetRequiredService<IMongoClient>();
+    return client.GetDatabase(settings.NomeDatabase);
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<IQuestionService, QuestionService>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -62,6 +83,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapAuthRoute();
+app.MapCheckInRoute();
+app.MapQuestionRoutes();
 
 app.Run();
 

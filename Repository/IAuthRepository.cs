@@ -1,8 +1,6 @@
-﻿using SoftCare.Dtos;
-using SoftCare.Dtos.User;
-using SoftCare.Models;
+﻿using SoftCare.Models;
 
-namespace SoftCare.Repositorios;
+namespace SoftCare.Repository;
 
 public interface IAuthRepository
 {
