@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using MongoDB.Driver;
 using SoftCare.Dtos;
+using SoftCare.Dtos.Auth;
 using SoftCare.Models;
 using SoftCare.Repository;
 
@@ -12,7 +13,7 @@ public class AuthService(TokenService tokenService, IAuthRepository authReposito
     private readonly TokenService _tokenService = tokenService;
     private readonly IAuthRepository _authRepository = authRepository;
 
-    public async Task<AuthResult> RegistrarAsync(RegisterRequest request)
+    public async Task<AuthResult> RegistrarAsync(RegistroRequest request)
     {
         var user = await _authRepository.BuscarUserAsync(request.email);
 

@@ -1,4 +1,5 @@
 ﻿using SoftCare.Dtos;
+using SoftCare.Dtos.Auth;
 using SoftCare.Services;
 
 namespace SoftCare.Routes.AuthRoutes;
@@ -9,7 +10,7 @@ public static class AuthRoutes
     {
         var authRoutes = app.MapGroup("/auth");
         
-        authRoutes.MapPost("/registrar", [AllowAnonymous] async (RegisterRequest request, IValidator<RegisterRequest> validator, IAuthService authService) =>
+        authRoutes.MapPost("/registrar", [AllowAnonymous] async (RegistroRequest request, IValidator<RegistroRequest> validator, IAuthService authService) =>
         {
             var validationResult = await validator.ValidateAsync(request);
 

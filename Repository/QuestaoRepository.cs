@@ -4,20 +4,20 @@ using SoftCare.Models;
 
 namespace SoftCare.Repository;
 
-public class QuestionRepository(IMongoDatabase database) : IQuestionRepository
+public class QuestaoRepository(IMongoDatabase database) : IQuestaoRepository
 {
     private readonly IMongoCollection<QuestionBank> _questionBankCollection = database.GetCollection<QuestionBank>(COLLECTIONNAME);
     
     private const string COLLECTIONNAME = "question_bank";
 
-    public async Task<QuestionBank>GetQuestionBankCodeAsync(string questionCode)
+    public async Task<QuestionBank>BuscarQuestaoPeloCodeAsync(string questionCode)
     {
         var question = await _questionBankCollection.Find(q => q.QuestionCode == questionCode).FirstOrDefaultAsync();
 
         return question;
     }
 
-    public async Task<QuestionBank> GetNextQuestionBankCategoryAsync(string category, string? lastId)
+    public async Task<QuestionBank> PagBuscarQuestaoPelaCaregoriaAsync(string category, string? lastId)
     {
         var filtroCategory = Builders<QuestionBank>.Filter.Eq(doc => doc.Category, category);
 
@@ -44,8 +44,7 @@ public class QuestionRepository(IMongoDatabase database) : IQuestionRepository
             .Limit(1)
             .FirstOrDefaultAsync();
     }
-
-    public async Task<QuestionBank> GetAllQuestionBankAsync(string? lastId)
+    public async Task<QuestionBank> BuscarTodasQuestoesAsync(string? lastId)
     {
         FilterDefinition<QuestionBank> filtroCursor;
 
@@ -67,5 +66,12 @@ public class QuestionRepository(IMongoDatabase database) : IQuestionRepository
             .SortBy(q => q.Id)
             .Limit(1)
             .FirstOrDefaultAsync();
+    }
+
+    public async Task<QuestionBank> BuscarQuestaoPeloIdAsync(string id)
+    {
+        var question = await _questionBankCollection.Find(q => q.Id == id).FirstOrDefaultAsync();
+
+        return question;
     }
 }

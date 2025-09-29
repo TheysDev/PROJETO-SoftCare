@@ -5,6 +5,8 @@ using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using SoftCare.Data;
 using SoftCare.Dtos;
+using SoftCare.Dtos.Auth;
+using SoftCare.Dtos.Respostas;
 using SoftCare.Repository;
 using SoftCare.Routes.AuthRoutes;
 using SoftCare.Routes.CheckInRoutes;
@@ -14,8 +16,9 @@ using SoftCare.Validations;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<IValidator<RegisterRequest>, RegisterValidator>();
+builder.Services.AddScoped<IValidator<RegistroRequest>, RegistroValidator>();
 builder.Services.AddScoped<IValidator<LoginRequest>, LoginValidator>();
+builder.Services.AddScoped<IValidator<RespostasRequest>, PerguntasValidator>();
 
 builder.Services.Configure<MongoDBConfig>(builder.Configuration.GetSection("MongoDB"));
 
@@ -37,10 +40,11 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
-builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
-builder.Services.AddScoped<IQuestionService, QuestionService>();
+builder.Services.AddScoped<IQuestaoRepository, QuestaoRepository>();
+builder.Services.AddScoped<IQuestaoService, QuestaoService>();
+builder.Services.AddScoped<IEntradaDiariaRepository, EntradaDiariaRepository>();
+builder.Services.AddScoped<IEntradaDiariaService, EntradaDiariaService>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -83,8 +87,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapAuthRoute();
-app.MapCheckInRoute();
+app.MapEntradaDiariaRoute();
 app.MapQuestionRoutes();
+app.MapAnaliseDasEntradasDiariasRoute();
 
 app.Run();
 

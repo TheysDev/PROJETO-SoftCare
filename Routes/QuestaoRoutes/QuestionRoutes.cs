@@ -9,15 +9,15 @@ public static class QuestionRoutes
     {
         var appRoutes = app.MapGroup("/app");
 
-        appRoutes.MapGet("/question/{questionCode}", async (string questionCode, IQuestionService service) =>
+        appRoutes.MapGet("/question/{questionCode}", async (string questionCode, IQuestaoService service) =>
         {
-            var question = await service.GetQuestionDoFrontCode(questionCode);
+            var question = await service.BuscarQuestaoPeloCodeAsync(questionCode);
 
             return !question.Sucesso ? Results.BadRequest("Questão não encontrada") : Results.Ok(question);
         });
 
 
-        appRoutes.MapGet("/question/next",  async ([FromQuery] string category, [FromQuery] string? lastId, IQuestionService service) =>
+        appRoutes.MapGet("/question/next",  async ([FromQuery] string category, [FromQuery] string? lastId, IQuestaoService service) =>
         {
             if (string.IsNullOrEmpty(category))
             {
@@ -26,7 +26,7 @@ public static class QuestionRoutes
 
             try
             {
-                var nextQuestion = await service.GetNextQuestionDoFrontCategory(category, lastId);
+                var nextQuestion = await service.PagBuscarQuestaoPelaCategoryAsync(category, lastId);
 
                 return nextQuestion == null ? Results.NoContent() : Results.Ok(nextQuestion);
             }
@@ -36,11 +36,11 @@ public static class QuestionRoutes
             }
         });
         
-        appRoutes.MapGet("/all-question/next",  async ([FromQuery] string? lastId, IQuestionService service) =>
+        appRoutes.MapGet("/all-question/next",  async ([FromQuery] string? lastId, IQuestaoService service) =>
         {
             try
             {
-                var nextQuestion = await service.GetAllQuestionDoFront(lastId);
+                var nextQuestion = await service.BuscarTodasAsQuestoesAsync(lastId);
 
                 return nextQuestion == null ? Results.NoContent() : Results.Ok(nextQuestion);
             }

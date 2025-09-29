@@ -1,12 +1,13 @@
 ﻿using FluentValidation;
 using SoftCare.Dtos;
+using SoftCare.Dtos.Auth;
 
 
 namespace SoftCare.Validations;
 
-public class RegisterValidator : AbstractValidator<RegisterRequest>
+public class RegistroValidator : AbstractValidator<RegistroRequest>
 {
-    public RegisterValidator()
+    public RegistroValidator()
     {
         RuleFor(e => e.email)
             .NotEmpty().WithMessage("O campo de e-mail é obrigatório.")
