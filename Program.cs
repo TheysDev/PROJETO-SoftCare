@@ -89,7 +89,6 @@ app.UseAuthorization();
 app.MapAuthRoute();
 app.MapEntradaDiariaRoute();
 app.MapQuestionRoutes();
-app.MapAnaliseDasEntradasDiariasRoute();
 
 app.Run();
 

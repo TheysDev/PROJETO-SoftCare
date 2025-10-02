@@ -9,7 +9,7 @@ public static class QuestionRoutes
     {
         var appRoutes = app.MapGroup("/app");
 
-        appRoutes.MapGet("/question/{questionCode}", async (string questionCode, IQuestaoService service) =>
+        appRoutes.MapGet("/questao/{questionCode}", async (string questionCode, IQuestaoService service) =>
         {
             var question = await service.BuscarQuestaoPeloCodeAsync(questionCode);
 
@@ -17,7 +17,7 @@ public static class QuestionRoutes
         });
 
 
-        appRoutes.MapGet("/question/next",  async ([FromQuery] string category, [FromQuery] string? lastId, IQuestaoService service) =>
+        appRoutes.MapGet("/questao/next",  async ([FromQuery] string category, [FromQuery] string? lastId, IQuestaoService service) =>
         {
             if (string.IsNullOrEmpty(category))
             {
@@ -49,5 +49,6 @@ public static class QuestionRoutes
                 return Results.BadRequest(ex.Message);
             }
         });
+        
     }
 }

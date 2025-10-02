@@ -41,5 +41,33 @@ public static class CheckInRoute
 
                 return Results.Created($"/daily-entries/{result.Dado}", result);
             });
+
+        appRoutes.MapGet("/entrada-diaria/resumo", async (ClaimsPrincipal user, IEntradaDiariaService service) =>
+        {
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                Results.Unauthorized();
+            }
+
+            var result = await service.ResumoDasDezUltimasEntradasDoUsuarioAsync(userId);
+
+            if (result == null || !result.Any())
+            {
+                return Results.NotFound("Nenhuma análise encontrada para as últimas 10 entradas deste usuário.");
+            }
+
+            return Results.Ok(result);
+        });
+        
+        appRoutes.MapGet("/categoria/resumo", async (ClaimsPrincipal user, IEntradaDiariaService service) =>
+        {
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var resultado = await service.ResumoDasDezUltimasEntradasPorCategoriaAsync(userId);
+            
+            return Results.Ok(resultado);
+        });
     }
 }

@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
-using SoftCare.Dtos.Analise;
+using SoftCare.Dtos.Questoes;
+using SoftCare.Dtos.Respostas;
 using SoftCare.Models;
 using SoftCare.Retornos;
 
@@ -8,38 +9,47 @@ namespace SoftCare.Repository;
 
 public class EntradaDiariaRepository(IMongoDatabase database) : IEntradaDiariaRepository
 {
-    private readonly IMongoCollection<DailyEntry> _dailyEntryCollection = database.GetCollection<DailyEntry>(COLLECTIONNAME);
-    
+    private readonly IMongoCollection<DailyEntry> _dailyEntryCollection =
+        database.GetCollection<DailyEntry>(COLLECTIONNAME);
+
     private const string COLLECTIONNAME = "daily_entries";
-    
+
     public async Task<Result<string>> RegistrarEntradaDiariaAsync(DailyEntry check)
     {
         await _dailyEntryCollection.InsertOneAsync(check);
-        
+
         return Result<string>.Ok(check.Id);
     }
-
-    public async Task<List<ItemAnalise>> MontarAnaliseComCategoriaAsync(string userId, string category, DateTime startDate,
-        DateTime endDate)
+    public async Task<List<ResumoRespostasDto>> BuscarDezUltimasEntradasAsync(string userId)
     {
         var pipeline = new BsonDocument[]
         {
-            new BsonDocument("$match", new BsonDocument
+            new("$match", new BsonDocument("user_id", new ObjectId(userId))),
+            new("$sort", new BsonDocument("date", -1)),
+            new("$limit", 10),
+            
+            new("$unwind", "$answers"),
+            new("$group", new BsonDocument
             {
-                { "user_id", userId },
-                { "date", new BsonDocument { { "$gte", startDate }, { "$lte", endDate } } }
+                {
+                    "_id", new BsonDocument
+                    {
+                        { "question_code", "$answers.question_code" },
+                        { "value", "$answers.value" }
+                    }
+                },
+                { "count", new BsonDocument("$sum", 1) }
             }),
-            new BsonDocument("$unwind", "$answers"),
-            new BsonDocument("$lookup", new BsonDocument
+            
+            new("$lookup", new BsonDocument
             {
                 { "from", "question_bank" },
-                { "localField", "answers.question_code" },
+                { "localField", "_id.question_code" },
                 { "foreignField", "code" },
                 { "as", "question_details" }
             }),
-            new BsonDocument("$unwind", "$question_details"),
-            new BsonDocument("$match", new BsonDocument("question_details.category", category)),
-            new BsonDocument("$addFields", new BsonDocument
+            new("$unwind", "$question_details"),
+            new("$addFields", new BsonDocument
             {
                 {
                     "answer_label", new BsonDocument
@@ -55,8 +65,7 @@ public class EntradaDiariaRepository(IMongoDatabase database) : IEntradaDiariaRe
                                             { "as", "opt" },
                                             {
                                                 "cond",
-                                                new BsonDocument("$eq",
-                                                    new BsonArray { "$$opt.value", "$answers.value" })
+                                                new BsonDocument("$eq", new BsonArray { "$$opt.value", "$_id.value" })
                                             }
                                         }))
                                 },
@@ -69,20 +78,82 @@ public class EntradaDiariaRepository(IMongoDatabase database) : IEntradaDiariaRe
                     }
                 }
             }),
-            new BsonDocument("$group", new BsonDocument
+            
+            new("$group", new BsonDocument
             {
-                { "_id", "$answer_label" },
-                { "Contagem", new BsonDocument("$sum", 1) }
+                { "_id", "$_id.question_code" },
+                { "question_text", new BsonDocument("$first", "$question_details.text") },
+                {
+                    "contagem_por_resposta", new BsonDocument
+                    {
+                        {
+                            "$push", new BsonDocument
+                            {
+                                { "Resposta", "$answer_label" },
+                                { "Quantidade", "$count" }
+                            }
+                        }
+                    }
+                }
             }),
-            new BsonDocument("$project", new BsonDocument
+            new("$project", new BsonDocument
             {
                 { "_id", 0 },
-                { "Resposta", "$_id" },
-                { "Contagem", "$Contagem" }
+                { "CodigoDaPergunta", "$_id" },
+                { "TextoDaPergunta", "$question_text" },
+                { "ContagemDetalhada", "$contagem_por_resposta" }
             })
         };
+        
+        var analysisResult = await _dailyEntryCollection.Aggregate<ResumoRespostasDto>(pipeline).ToListAsync();
 
-        var analise = await _dailyEntryCollection.Aggregate<ItemAnalise>(pipeline).ToListAsync();
-        return analise;
+        return analysisResult;
+    }
+
+    public async Task<List<ResumoCategoriaDto>> ResumoDasDezUltimasEntradasPorCategoriaAsync(string userId)
+    {
+        var pipeline = new BsonDocument[]
+        {
+            new("$match", new BsonDocument("user_id", new ObjectId(userId))),
+            new("$sort", new BsonDocument("date", -1)),
+            new("$limit", 10),
+            
+            new("$unwind", "$answers"),
+            new("$lookup", new BsonDocument
+            {
+                { "from", "question_bank" },
+                { "localField", "answers.question_code" },
+                { "foreignField", "code" },
+                { "as", "question_details" }
+            }),
+            new("$unwind", "$question_details"),
+            
+            new("$addFields", new BsonDocument
+            {
+                { "answer_label", new BsonDocument
+                    {
+                        { "$let", new BsonDocument
+                            {
+                                { "vars", new BsonDocument("matched_option", new BsonDocument("$filter", new BsonDocument {
+                                    { "input", "$question_details.options" }, { "as", "opt" },
+                                    { "cond", new BsonDocument("$eq", new BsonArray { "$$opt.value", "$answers.value" }) }
+                                }))},
+                                { "in", new BsonDocument("$arrayElemAt", new BsonArray { "$$matched_option.label", 0 }) }
+                            }
+                        }
+                    }
+                }
+            }),
+            
+            new("$project", new BsonDocument
+            {
+                { "_id", 0 },
+                { "Categoria", "$question_details.category" },
+                { "RespostaTexto", "$answer_label" }
+            })
+        };
+        return await _dailyEntryCollection.Aggregate<ResumoCategoriaDto>(pipeline).ToListAsync();
     }
 }
+    
+        
